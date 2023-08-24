@@ -125,7 +125,7 @@ static void prvInitLa9310Info( struct la9310_info * pLa9310Info )
     pMsiInfo = &pLa9310Info->msi_info[ MSI_IRQ_MUX ];
 
     /* According to PCI bus standerd multiple MSIs are allocated consecutively*/
-    uMSIAddrVal = ( IN_32( pMsiAddrReg ) & 0x3FF );
+    uMSIAddrVal = ( IN_32( pMsiAddrReg ) & 0xFFF );
     #ifdef LS1046_HOST_MSI_RAISE
         /*This method to initialize MSI structure is non-standard and dedicated for
          * LS1046 host */
@@ -223,6 +223,24 @@ int iLa9310HostPostInit( struct la9310_info * pLa9310Info )
     {
         log_info( "%s: eDMA init DONE\n\r", __func__ );
     }
+/*
+
+    log_err( "v close to my code \n\r" );
+
+	volatile uint32_t* const gpio_base     = (uint32_t*) 0x2300000;
+	volatile uint32_t* const gpio_out     = (uint32_t*) 0x2300008;
+
+	*gpio_base = 0x1F98;
+
+	while(1) {
+		log_err( "loop \n\r");
+		*gpio_out = 0x1F98;
+		*gpio_out = 0;
+
+		log_err( "loop out \n\r" );
+	}
+
+*/
 
     return irc;
 }
@@ -316,6 +334,36 @@ int iInitHandler ( void )
     }
 
 
+
+
+
+/*
+
+    log_err( "going to run my code now\n");
+
+    int i = 0;
+
+	for(i =0; i < 20; i++) {
+		vGpioSetPinMuxSingle( i, SET_MUX_GPIO_MODE );
+		iGpioInit( i, input, false );
+	}
+*/
+/*
+	log_err( "ran gpio init\n");
+
+
+	while(1) {
+		log_err( "loop\n");
+		for(i =0; i < 20; i++) {
+			iGpioSetData( i, 0 );
+		}
+
+		for(i =0; i < 20; i++) {
+			iGpioSetData( i, 1 );
+		}
+	}
+*/
+
     pxContext = pxSyncTimingDeviceInit();
 #if LA9310_UPGRADE_TIMESYNC_FW
     if( lSyncTimingDeviceUpgradeFirmware( pxContext ) )
@@ -397,7 +445,7 @@ int iInitHandler ( void )
     iLa9310AviConfig();
 
     #if __DCS
-        vDcsInit(Half_Freq);
+        vDcsInit(Full_Freq);
     #endif
 
     #ifdef TURN_ON_HOST_MODE
@@ -426,6 +474,9 @@ out:
 /*
  *        La9310 Application Entry point
  */
+
+#include "la9310_gpio.h"
+
 int main( void )
 {
     int irc = 0;
@@ -457,6 +508,27 @@ int main( void )
         vUARTCommandConsoleStart( mainUART_COMMAND_CONSOLE_STACK_SIZE,
                                   mainUART_COMMAND_CONSOLE_TASK_PRIORITY );
     #endif
+
+/*
+        int i = 0;
+
+        for(i =0; i < 20; i++) {
+			vGpioSetPinMuxSingle( i, SET_MUX_GPIO_MODE );
+			iGpioInit( i, output, false );
+		}
+
+
+        while(1) {
+        	for(i =0; i < 20; i++) {
+				iGpioSetData( i, 0 );
+			}
+
+        	for(i =0; i < 20; i++) {
+				iGpioSetData( i, 1 );
+			}
+        }
+
+*/
 
     /* Start FreeRTOS scheduler */
     vTaskStartScheduler();

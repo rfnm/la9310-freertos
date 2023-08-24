@@ -43,8 +43,7 @@ BaseType_t vLa9310MbxReceive(struct la9310_mbox_v2h *mbox_v2h)
             {
                 mbox_v2h->msb32 = vspa_mbox.msb;
                 *((uint32_t *)(&mbox_v2h->status))  = vspa_mbox.lsb;
-                log_info("\r\n **V2H: MSB_LSB(Hex):%x::%x retries %d\r\n",
-                        mbox_v2h->msb32, *((uint32_t *)(&mbox_v2h->status)),retries);
+        //        log_info("\r\n **V2H: MSB_LSB(Hex):%x::%x retries %d\r\n", mbox_v2h->msb32, *((uint32_t *)(&mbox_v2h->status)), retries);
                 return pdPASS;
             }
             retries++;

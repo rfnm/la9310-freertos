@@ -6,13 +6,13 @@
 #define __LA9310_HOST_V2H_IF_H__
 
 /* Enable V2H application support */
-#define NLM_ENABLE_V2H
+//#define NLM_ENABLE_V2H
 
 /* Enable V2H Test Debug */
 //#define DEBUG_V2H_TEST
 
 /* Enable RUN_V2H_TEST_APP on FreeRTOS */
-#define RUN_V2H_TEST_APP
+//#define RUN_V2H_TEST_APP
 
 /* No of buffer descriptor  in ring */
 #define V2H_MAX_BD			16

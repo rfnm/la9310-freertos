@@ -151,7 +151,7 @@ void vRficCoreTask( void * pvParameters )
 				      RF_CORE_TASK_EVENT_MASK,
 				      pdTRUE,  //Clear all the events before returning
 				      pdFALSE, //Any event should make this API return
-				      portMAX_DELAY );
+				      1 ); //portMAX_DELAY
 	if( uxBits & RF_LOCAL_CMD_EVENT )
 	{
 	    RF_STATS_ADD( pRficDev->pRfHif->rf_stats.local_cmd_count );
@@ -179,7 +179,7 @@ void vRficCoreTask( void * pvParameters )
 	}
 	else
 	{
-	    log_err( "%s: Invalid com event.\n\r", __func__ );
+	//    log_err( "%s: Invalid com event.\n\r", __func__ );
 	}
     }
 }

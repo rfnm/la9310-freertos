@@ -29,8 +29,7 @@ void vRaiseMsi( struct la9310_info * pla9310Info,
     pMsiInfo = &pla9310Info->msi_info[ msi ];
     OUT_32( pMsiInfo->addr, pMsiInfo->data );
 
-    log_dbg( "inside vRaiseMsi address =%p, data=%d\n",
-             pMsiInfo->addr, pMsiInfo->data );
+    log_dbg( "inside vRaiseMsi address =%p, data=%d\n",  pMsiInfo->addr, pMsiInfo->data );
 
     pStats->irq_mux_tx_msi_cnt++;
     dmb();

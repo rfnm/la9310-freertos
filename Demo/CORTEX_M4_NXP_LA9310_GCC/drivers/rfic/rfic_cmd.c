@@ -9,6 +9,7 @@
 #include "rfic_sw_cmd.h"
 #include "rfic_avi_ctrl.h"
 #include "rfic_dac.h"
+#include <la9310_irq.h>
 
 int32_t iRficCtrlFemSwitch( RficDevice_t *pRficDev, rf_band_t band )
 {
@@ -234,6 +235,10 @@ err:
     return;
 }
 
+
+#define MSI_IRQ_FLOOD_0 6
+#define MSI_IRQ_FLOOD_1 7
+
 void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
 {
         BaseType_t xRet = pdFAIL;
@@ -247,9 +252,13 @@ void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
         mbox_h2v.ctrl.bandwidth = 0;
         mbox_h2v.ctrl.rcvr = 0;
         mbox_h2v.msbl16 = cmd_data->size;
+        cmd_data->addr = LA9310_IQFLOOD_PHYS_ADDR;
         mbox_h2v.lsb32 = cmd_data->addr;
-
         vLa9310MbxSend(&mbox_h2v);
+
+        log_info("starting iqflood with addr %p\r\n", cmd_data->addr);
+
+read_again:
         xRet = vLa9310MbxReceive(&mbox_v2h);
 
         if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
@@ -260,6 +269,21 @@ void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
         else
         {
                 rfic_sw_cmd->result = RF_SW_CMD_RESULT_OK;
+        }
+
+
+        //log_info("iqdump mbox is %08x \r\n", mbox_v2h.msb32);
+
+        if((mbox_v2h.msb32 & 0xf0) == 0x80) {
+            
+            vRaiseMsi( pLa9310Info, MSI_IRQ_FLOOD_0 );
+
+            uint32_t *bufferStatusPtr = (uint32_t*) (cmd_data->addr + (1024 * 1024 * 17));
+            *bufferStatusPtr = mbox_v2h.msb32;
+
+            //log_info("set %p off %x to %08x \r\n", bufferStatusPtr, cmd_data->addr, *bufferStatusPtr);
+            
+            goto read_again;
         }
 
         return;

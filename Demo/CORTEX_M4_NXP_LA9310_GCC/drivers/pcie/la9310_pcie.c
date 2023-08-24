@@ -77,6 +77,37 @@
         pcie_regs = ( volatile uint32_t * ) ( PCIE_CONTROL_BASE_ADDR + 0x7FC );
         val[ 0 ] = *pcie_regs;
         PRINTF( "%08x : %08x\r\n", pcie_regs, val[ 0 ] );
+
+        pcie_regs = ( volatile uint32_t * ) ( PCIE_BASE_ADDR + 0x54 );
+        val[ 0 ] = *pcie_regs;
+        PRINTF( "msi-address: %08x : %08x\r\n", pcie_regs, val[ 0 ] );
+
+        /*
+        
+        PCIE_BASE_ADDR + 0x54
+
+        doesn't work: 
+        455d1908
+        44626508
+        44bd9508
+        4557e908
+        457b8908
+        45822908
+
+        works:
+        45596108
+        458c3108
+        45036108
+        44641108
+        44c19108
+
+
+
+
+
+
+
+        */
     }
 #endif /* ifdef LA9310_ENABLE_COMMAND_LINE */
 
