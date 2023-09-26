@@ -44,6 +44,16 @@ typedef enum RfSwCmdId {
     RF_SW_CMD_SET_LOOPBACK,
     RF_SW_CMD_FAST_CALIB,
     RF_SW_CMD_TX_IQ_DATA,
+
+    RF_SW_GET_RX_DC_OFFSET,
+
+    RF_SW_SET_RX_DC_OFFSET,
+
+    RF_SW_SET_CHANNEL,
+
+    RF_SW_SET_IQ_IMBALANCE,
+
+
     RF_SW_CMD_END
 } RfSwCmdId_t;
 

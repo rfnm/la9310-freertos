@@ -274,7 +274,7 @@ read_again:
 
         //log_info("iqdump mbox is %08x \r\n", mbox_v2h.msb32);
 
-        if((mbox_v2h.msb32 & 0xf0) == 0x80) {
+        if(0 && (mbox_v2h.msb32 & 0xf0) == 0x80) {
             
             vRaiseMsi( pLa9310Info, MSI_IRQ_FLOOD_0 );
 
@@ -288,6 +288,180 @@ read_again:
 
         return;
 }
+
+
+void vRficGetRxDcOffset(rf_sw_cmd_desc_t *rfic_sw_cmd)
+{
+    BaseType_t xRet = pdFAIL;
+    struct sw_cmddata_reg_opr *cmd_data;
+    struct la9310_mbox_v2h mbox_v2h = {0};
+    struct la9310_mbox_h2v mbox_h2v = {0};
+
+    cmd_data = ((struct sw_cmddata_reg_opr *)rfic_sw_cmd->data);
+
+    mbox_h2v.ctrl.op_code = DCOC_CAL;
+    //mbox_h2v.ctrl.start_stop = cmd_data->start_stop;
+    //mbox_h2v.ctrl.bandwidth = 0;
+    mbox_h2v.ctrl.rcvr = 0;
+    //mbox_h2v.msbl16 = cmd_data->size;
+    //mbox_h2v.lsb32 = cmd_data->addr;
+
+    vLa9310MbxSend(&mbox_h2v);
+    xRet = vLa9310MbxReceive(&mbox_v2h);
+
+    if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
+    {
+        log_err("%s: dc offset failed error[%d] \r\n", __func__, mbox_v2h.status.err_code);
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_ERROR;
+    }
+    else
+    {
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_OK;
+
+        cmd_data->val = mbox_v2h.msb32;
+
+        log_err("%s: dc offset might be %08x \r\n", __func__, mbox_v2h.msb32);
+    }
+
+    return;
+}
+
+
+void vRficSetDcOffset(rf_sw_cmd_desc_t *rfic_sw_cmd)
+{
+    BaseType_t xRet = pdFAIL;
+    struct sw_cmddata_dump_iq *cmd_data;
+    struct la9310_mbox_v2h mbox_v2h = {0};
+    struct la9310_mbox_h2v mbox_h2v = {0};
+
+    cmd_data = ((struct sw_cmddata_dump_iq *)rfic_sw_cmd->data);
+
+    mbox_h2v.ctrl.op_code = TX_DC_CORRECTION;
+    //mbox_h2v.ctrl.start_stop = cmd_data->start_stop;
+    //mbox_h2v.ctrl.bandwidth = 0;
+    mbox_h2v.ctrl.rcvr = 0;
+    //mbox_h2v.msbl16 = cmd_data->size;
+    mbox_h2v.lsb32 = cmd_data->addr;
+
+    vLa9310MbxSend(&mbox_h2v);
+    xRet = vLa9310MbxReceive(&mbox_v2h);
+
+    if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
+    {
+        log_err("%s: dc offset failed error[%d] \r\n", __func__, mbox_v2h.status.err_code);
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_ERROR;
+    }
+    else
+    {
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_OK;
+
+//        log_err("%s: dc offset set to %08x \r\n", __func__, mbox_h2v.lsb32);
+
+    int16_t i, q;
+
+    i = mbox_v2h.msb32 >> 16;
+    q = mbox_v2h.msb32 & 0xffff;
+
+        if(mbox_v2h.msb32 != mbox_h2v.lsb32) {
+            log_err("%s: got back something else %08x vs %08x \r\n", __func__, mbox_v2h.msb32, mbox_h2v.lsb32);
+        }
+
+        log_err("%s: dc offset is %d and %d \r\n", __func__, i, q);
+    }
+
+    return;
+}
+
+
+void vRficSetIqImbalance(rf_sw_cmd_desc_t *rfic_sw_cmd)
+{
+    BaseType_t xRet = pdFAIL;
+    struct sw_cmddata_dump_iq *cmd_data;
+    struct la9310_mbox_v2h mbox_v2h = {0};
+    struct la9310_mbox_h2v mbox_h2v = {0};
+
+    cmd_data = ((struct sw_cmddata_dump_iq *)rfic_sw_cmd->data);
+
+    mbox_h2v.ctrl.op_code = RFNM_IQ_IMBALANCE;
+    //mbox_h2v.ctrl.start_stop = cmd_data->start_stop;
+    //mbox_h2v.ctrl.bandwidth = 0;
+    mbox_h2v.ctrl.rcvr = 0;
+    //mbox_h2v.msbl16 = cmd_data->size;
+    mbox_h2v.lsb32 = cmd_data->addr;
+
+    vLa9310MbxSend(&mbox_h2v);
+    xRet = vLa9310MbxReceive(&mbox_v2h);
+
+    if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
+    {
+        log_err("%s: dc imbalance failed error[%d] \r\n", __func__, mbox_v2h.status.err_code);
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_ERROR;
+    }
+    else
+    {
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_OK;
+
+//        log_err("%s: dc offset set to %08x \r\n", __func__, mbox_h2v.lsb32);
+
+    int16_t i, q;
+
+    i = mbox_v2h.msb32 >> 16;
+    q = mbox_v2h.msb32 & 0xffff;
+
+        if(mbox_v2h.msb32 != mbox_h2v.lsb32) {
+            log_err("%s: got back something else %08x vs %08x \r\n", __func__, mbox_v2h.msb32, mbox_h2v.lsb32);
+        }
+
+        log_err("%s: dc imbalance is %d and %d \r\n", __func__, i, q);
+    }
+
+    return;
+}
+
+
+
+
+
+
+
+void vRficSetChannel(rf_sw_cmd_desc_t *rfic_sw_cmd)
+{
+    BaseType_t xRet = pdFAIL;
+    struct sw_cmddata_dump_iq *cmd_data;
+    struct la9310_mbox_v2h mbox_v2h = {0};
+    struct la9310_mbox_h2v mbox_h2v = {0};
+
+    cmd_data = ((struct sw_cmddata_dump_iq *)rfic_sw_cmd->data);
+
+    mbox_h2v.ctrl.op_code = RFNM_SET_CHANNEL;
+    //mbox_h2v.ctrl.start_stop = cmd_data->start_stop;
+    //mbox_h2v.ctrl.bandwidth = 0;
+    mbox_h2v.ctrl.rcvr = 0;
+    //mbox_h2v.msbl16 = cmd_data->size;
+    mbox_h2v.lsb32 = cmd_data->addr;
+
+    vLa9310MbxSend(&mbox_h2v);
+    xRet = vLa9310MbxReceive(&mbox_v2h);
+
+    if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
+    {
+        log_err("%s: failed to set channel [%d] \r\n", __func__, mbox_v2h.status.err_code);
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_ERROR;
+    }
+    else
+    {
+        rfic_sw_cmd->result = RF_SW_CMD_RESULT_OK;
+
+        log_err("%s: channel set to %08x \r\n", __func__, mbox_h2v.lsb32);
+    }
+
+    return;
+}
+
+
+
+
+
 
 void vRficProcessTXIqData(rf_sw_cmd_desc_t *rfic_sw_cmd)
 {

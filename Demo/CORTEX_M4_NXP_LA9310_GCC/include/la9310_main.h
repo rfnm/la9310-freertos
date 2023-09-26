@@ -30,7 +30,12 @@ typedef enum la9310_mbx_opcode
     TX_LO_LEAKAGE_IQ_ERROR_CAL,
     VSPA_FW_IMAGE_BASE_OFFSET,
     TX_DC_CORRECTION,
-    RX_DC_CORRECTION
+    RX_DC_CORRECTION,
+
+	
+	RFNM_SET_CHANNEL,
+
+    RFNM_IQ_IMBALANCE
 } la9310_mbx_opcode_t;
 
 struct la9310_msi_info

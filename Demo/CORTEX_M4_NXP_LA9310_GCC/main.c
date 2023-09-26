@@ -509,7 +509,7 @@ int main( void )
                                   mainUART_COMMAND_CONSOLE_TASK_PRIORITY );
     #endif
 
-/*
+#if 0
         int i = 0;
 
         for(i =0; i < 20; i++) {
@@ -528,7 +528,7 @@ int main( void )
 			}
         }
 
-*/
+#endif
 
     /* Start FreeRTOS scheduler */
     vTaskStartScheduler();

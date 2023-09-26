@@ -23,4 +23,10 @@ void vRficProcessSingleToneTX( rf_sw_cmd_desc_t * rfic_sw_cmd );
 void vRficProcessLoopback( RficDevice_t * pRficDev,
                            rf_sw_cmd_desc_t * rfic_sw_cmd );
 void vRficProcessTXIqData(rf_sw_cmd_desc_t *rfic_sw_cmd);
+
+
+void vRficGetRxDcOffset(rf_sw_cmd_desc_t *rfic_sw_cmd);
+void vRficSetDcOffset(rf_sw_cmd_desc_t *rfic_sw_cmd);
+void vRficSetChannel(rf_sw_cmd_desc_t *rfic_sw_cmd);
+
 #endif //__RFIC_CMD_H
