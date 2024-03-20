@@ -293,6 +293,27 @@ void vLa9310VerifyCRC()
 }
 #endif //TURN_ON_STANDALONE_MODE
 
+#if 0
+
+
+void vLa9310EdmaDemo( uint32_t * pulEDMAInfo )
+{
+
+
+edma_channel_info_t * handle = NULL;
+    handle = pEdmaAllocChannel( pulEDMAInfo, NULL );
+
+
+
+
+    ret = iEdmaXferReq( ( int ) sa, ( int ) 0xC0000000, 1024*16, handle );
+}
+
+        
+
+
+#else 
+
 void vLa9310EdmaDemo( uint32_t * pulEDMAInfo )
 {
     int sa[ N_INT ] = { 0 };
@@ -366,6 +387,7 @@ void vLa9310EdmaDemo( uint32_t * pulEDMAInfo )
         log_info( "All edma channels are busy\n\r" );
     }
 }
+#endif
 
 void vLa9310I2CTest( uint8_t uI2C_Controller,
                      uint8_t rw,

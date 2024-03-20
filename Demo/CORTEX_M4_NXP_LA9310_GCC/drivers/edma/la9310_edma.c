@@ -162,8 +162,15 @@ void vEdmaFreeChannel( pvEdmaHandle Handle )
     pStats->la9310_eDMA_ch[ pEdmaCh->channel_id ].no_callback_reg = 0;
 }
 
+//extern int is_dma_done;
+
 void La9310eDMA_IRQHandler( void )
 {
+
+ //   is_dma_done = 1;
+
+   // return;
+
     uint32_t usChannelNumber = NO_CHANNEL_AVL, c = 0, i = 0;
     struct la9310_stats * pStats;
 
