@@ -165,6 +165,7 @@ SET(LA9310_SOURCES
     "${ProjDirPath}/platform/boards/la9310/hardware_init.c"
     "${ProjDirPath}/main.c"
     "${ProjDirPath}/la9310_demo.c"
+    "${ProjDirPath}/rfnm_rf_ctrl.c"
     "${ProjDirPath}/la9310_irq.c"
     "${ProjDirPath}/la9310_v2h_test.c"
     "${ProjDirPath}/bbdev_ipc_raw_demo.c"
