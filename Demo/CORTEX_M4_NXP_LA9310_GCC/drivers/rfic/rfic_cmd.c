@@ -10,6 +10,8 @@
 #include "rfic_avi_ctrl.h"
 #include "rfic_dac.h"
 #include <la9310_irq.h>
+#include "la9310_dcs.h"
+#include "la9310_dcs_api.h"
 
 int32_t iRficCtrlFemSwitch( RficDevice_t *pRficDev, rf_band_t band )
 {
@@ -252,13 +254,30 @@ void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
         mbox_h2v.ctrl.bandwidth = 0;
         mbox_h2v.ctrl.rcvr = 0;
         mbox_h2v.msbl16 = cmd_data->size;
-        cmd_data->addr = LA9310_IQFLOOD_PHYS_ADDR;
+        //cmd_data->addr = LA9310_IQFLOOD_PHYS_ADDR;
         mbox_h2v.lsb32 = cmd_data->addr;
         vLa9310MbxSend(&mbox_h2v);
 
-        log_info("starting iqflood with addr %p\r\n", cmd_data->addr);
+        log_info("LA STREAM CMD: %x\r\n", cmd_data->addr);
 
-read_again:
+#if 0
+        for(int i = 0; i < 5; i++) {
+			uint16_t state = (cmd_data->addr & (0x3 << (2 * i))) >> (2 * i);
+            if(i == 0) {
+                if(state == 2) {
+                    xLa9310ConfigAdcDacClock( XCVR_TRX_TX_DAC, Half_Freq );
+                } else if(state == 1) {
+                    xLa9310ConfigAdcDacClock( XCVR_TRX_TX_DAC, Full_Freq );
+                }
+            } else {
+                if(state == 2) {
+                    xLa9310ConfigAdcDacClock( i, Half_Freq );
+                } else if(state == 1) {
+                    xLa9310ConfigAdcDacClock( i, Full_Freq );
+                }
+            }
+        }
+#endif
         xRet = vLa9310MbxReceive(&mbox_v2h);
 
         if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
@@ -269,21 +288,6 @@ read_again:
         else
         {
                 rfic_sw_cmd->result = RF_SW_CMD_RESULT_OK;
-        }
-
-
-        //log_info("iqdump mbox is %08x \r\n", mbox_v2h.msb32);
-
-        if(0 && (mbox_v2h.msb32 & 0xf0) == 0x80) {
-            
-            vRaiseMsi( pLa9310Info, MSI_IRQ_FLOOD_0 );
-
-            uint32_t *bufferStatusPtr = (uint32_t*) (cmd_data->addr + (1024 * 1024 * 17));
-            *bufferStatusPtr = mbox_v2h.msb32;
-
-            //log_info("set %p off %x to %08x \r\n", bufferStatusPtr, cmd_data->addr, *bufferStatusPtr);
-            
-            goto read_again;
         }
 
         return;

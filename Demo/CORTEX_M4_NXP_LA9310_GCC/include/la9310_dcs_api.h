@@ -44,4 +44,7 @@ void vDcsInit(DCSFreq_t Freq);
  */
 BaseType_t vLA9310DacClockSwitch(DCSFreq_t freq);
 
+BaseType_t xLa9310ConfigAdcDacClock( LA9310XcvrDCS_t dcs,
+                                     DCSFreq_t freq );
+
 #endif
