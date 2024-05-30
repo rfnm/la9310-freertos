@@ -446,7 +446,7 @@ int iInitHandler ( void )
     iLa9310AviConfig();
 
     #if __DCS
-        vDcsInit(Full_Freq);
+        vDcsInit(Half_Freq);
     #endif
 
     #ifdef TURN_ON_HOST_MODE

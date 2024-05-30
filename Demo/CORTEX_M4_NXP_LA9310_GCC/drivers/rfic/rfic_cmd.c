@@ -12,6 +12,7 @@
 #include <la9310_irq.h>
 #include "la9310_dcs.h"
 #include "la9310_dcs_api.h"
+#include <delay.h>
 
 int32_t iRficCtrlFemSwitch( RficDevice_t *pRficDev, rf_band_t band )
 {
@@ -241,6 +242,9 @@ err:
 #define MSI_IRQ_FLOOD_0 6
 #define MSI_IRQ_FLOOD_1 7
 
+#define RFNM_ADC_MAP_FREERTOS (int[]){0x4, 0x2, 0x3, 0x1}
+
+
 void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
 {
         BaseType_t xRet = pdFAIL;
@@ -250,17 +254,23 @@ void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
 
         cmd_data = ((struct sw_cmddata_dump_iq *)rfic_sw_cmd->data);
 
+
+#if 1
         mbox_h2v.ctrl.op_code = IQ_MODULATED_RX;
         mbox_h2v.ctrl.bandwidth = 0;
         mbox_h2v.ctrl.rcvr = 0;
-        mbox_h2v.msbl16 = cmd_data->size;
+        mbox_h2v.msbl16 = 0;
         //cmd_data->addr = LA9310_IQFLOOD_PHYS_ADDR;
-        mbox_h2v.lsb32 = cmd_data->addr;
+        mbox_h2v.lsb32 = 0;
         vLa9310MbxSend(&mbox_h2v);
 
-        log_info("LA STREAM CMD: %x\r\n", cmd_data->addr);
+        vUDelay(2000);
+#endif
 
-#if 0
+
+
+
+#if 1
         for(int i = 0; i < 5; i++) {
 			uint16_t state = (cmd_data->addr & (0x3 << (2 * i))) >> (2 * i);
             if(i == 0) {
@@ -271,13 +281,30 @@ void vRficProcessIqDump(rf_sw_cmd_desc_t *rfic_sw_cmd)
                 }
             } else {
                 if(state == 2) {
-                    xLa9310ConfigAdcDacClock( i, Half_Freq );
+                    xLa9310ConfigAdcDacClock( RFNM_ADC_MAP_FREERTOS[i - 1], Half_Freq );
                 } else if(state == 1) {
-                    xLa9310ConfigAdcDacClock( i, Full_Freq );
+                    xLa9310ConfigAdcDacClock( RFNM_ADC_MAP_FREERTOS[i - 1], Full_Freq );
                 }
             }
         }
 #endif
+
+        vUDelay(2000);
+
+
+        mbox_h2v.ctrl.op_code = IQ_MODULATED_RX;
+        mbox_h2v.ctrl.bandwidth = 0;
+        mbox_h2v.ctrl.rcvr = 0;
+        mbox_h2v.msbl16 = cmd_data->size;
+        //cmd_data->addr = LA9310_IQFLOOD_PHYS_ADDR;
+        mbox_h2v.lsb32 = cmd_data->addr;
+        vLa9310MbxSend(&mbox_h2v);
+
+        //vUDelay(2000);
+
+        log_info("LA STREAM CMD: %x\r\n", cmd_data->addr);
+
+
         xRet = vLa9310MbxReceive(&mbox_v2h);
 
         if ((pdFAIL == xRet) || (0 != mbox_v2h.status.err_code))
